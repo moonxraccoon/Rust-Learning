@@ -9,6 +9,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let stdin = io::stdin();
     loop {
         print!("> ");
+        // '?' passes the error to the main function itself
+        // If something is wrong with stdin/stdout then you can crash the program
         io::stdout().flush()?;
         stdin.read_line(&mut input)?;
         if input.trim() == "quit" {

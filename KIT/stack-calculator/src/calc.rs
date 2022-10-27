@@ -40,6 +40,7 @@ pub enum Command {
     Revert,
     Reset,
     Quit,
+    Unknown,
 }
 
 impl Calculator {
@@ -56,8 +57,10 @@ impl Calculator {
 impl Command {
     pub fn from_string(str: &String) -> Result<Self, Box<dyn std::error::Error>> {
         let mut iter = str.split_whitespace();
-        let cmd = iter.next().unwrap_or("quit");
-        let arg: i64 = iter.next().unwrap_or("0").parse()?;
+        let cmd = iter.next().unwrap_or("quit").trim();
+
+        // '?' passes the error to the function itself
+        let arg: i64 = iter.next().unwrap_or("0").trim().parse()?;
         Ok(match cmd {
             "push" => Command::Push(arg),
             "pop" => Command::Pop,
@@ -70,12 +73,16 @@ impl Command {
             "revert" => Command::Revert,
             "reset" => Command::Reset,
             "quit" => Command::Quit,
-            _ => Command::Quit,
+            _ => Command::Unknown,
         })
     }
     pub fn call(self, calc: &mut Calculator) {
         match self {
             Command::Pop => {
+                if calc.numbers.size() < 1 {
+                    println!("There are no numbers on the stack!");
+                    return;
+                }
                 calc.numbers.pop();
                 println!("Ok!");
             }
@@ -128,7 +135,7 @@ impl Command {
             }
             Command::Print => {
                 if calc.numbers.stack.is_empty() {
-                    println!("Stack is empty!");
+                    println!("<empty>");
                     return;
                 }
                 print!("|");
@@ -150,6 +157,12 @@ impl Command {
                 println!("Ok!");
             }
             Command::Quit => {}
+            Command::Unknown => {
+                println!("Unknown command!");
+                println!("Possible commands are:");
+                println!("push <num>, add, sub, divide, multiply");
+                println!("pop, print, revert, reset, quit");
+            }
         };
     }
 }
