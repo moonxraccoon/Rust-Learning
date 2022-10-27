@@ -54,11 +54,11 @@ impl Calculator {
 }
 
 impl Command {
-    pub fn from_string(str: &String) -> Self {
+    pub fn from_string(str: &String) -> Result<Self, Box<dyn std::error::Error>> {
         let mut iter = str.split_whitespace();
         let cmd = iter.next().unwrap_or("quit");
-        let arg: i64 = iter.next().unwrap_or("0").parse().unwrap();
-        match cmd {
+        let arg: i64 = iter.next().unwrap_or("0").parse()?;
+        Ok(match cmd {
             "push" => Command::Push(arg),
             "pop" => Command::Pop,
             "add" => Command::Add,
@@ -70,8 +70,8 @@ impl Command {
             "revert" => Command::Revert,
             "reset" => Command::Reset,
             "quit" => Command::Quit,
-            &_ => Command::Quit,
-        }
+            _ => Command::Quit,
+        })
     }
     pub fn call(self, calc: &mut Calculator) {
         match self {
